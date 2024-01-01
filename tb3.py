@@ -5,15 +5,8 @@ import websockets
 import json
 import asyncio
 import time
-import cv2
-import base64
-import tf
 from websockets.exceptions import ConnectionClosedError
 import sys
-
-from nav_msgs.msg import Odometry
-from sensor_msgs.msg import Imu, NavSatFix
-from geometry_msgs.msg import Twist, PoseStamped, TwistStamped
 
 from WebRobot import WebRobot
 # from WebRobot_Data import *
