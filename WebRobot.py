@@ -10,28 +10,33 @@ from geometry_msgs.msg import Twist, PoseStamped, TwistStamped
 
 from WebRobot_Data import *
 
-class WebRobot_client():
+class WebRobot():
 
     def __init__(self) -> None:
         
         # self.ws_uri = ws_uri
         self.data = WebRobot_Data()
 
-    def init_robot(self, robot_name, robot_type):
-        
-        rospy.init_node(robot_name + '_node', anonymous=True)
+    def set_robot_name(self, robot_name):
         self.data.header.robot_name = robot_name
+
+    def set_robot_type(self, robot_type):
         
         if robot_type in RobotTypes:
             self.data.header.robot_type = robot_type
+
         else:
             raise Exception("Not a valid robot type. Choose from the following supported types: ", RobotTypes)
+
+    def init_robot(self):
         
-        self.init_subscribers()
-        self.init_publishers()
+        rospy.init_node(self.data.header.robot_name + '_node', anonymous=True)
+        
+        self._init_subscribers()
+        self._init_publishers()
         print(self.data.header.robot_name + " of type " + self.data.header.robot_type + " successfully initialized. ")
 
-    def init_subscribers(self):
+    def _init_subscribers(self):
 
         if self.data.header.robot_type == 'Turtlebot':
             rospy.Subscriber('/odom', Odometry, self.odomcb)
@@ -43,7 +48,7 @@ class WebRobot_client():
             rospy.Subscriber('/mavros/imu/data', Imu, self.imucb)
             rospy.Subscriber('/mavros/local_position/velocity', TwistStamped, self.local_velocity_cb)
 
-    def init_publishers(self):
+    def _init_publishers(self):
 
         if self.data.header.robot_type == 'Turtlebot':
             self.cmdvel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
@@ -51,7 +56,7 @@ class WebRobot_client():
     def init_socket_connection(self):
         pass
 
-    def return_data(self):
+    def robot_data(self):
         return self.data.to_dict()
     
     def get_available_robot_types(self):
@@ -113,7 +118,7 @@ class WebRobot_client():
 
 if __name__ == '__main__':
 
-    tb3 = WebRobot_client()
+    tb3 = WebRobot()
     tb3.init_robot(robot_name='tb3', robot_type='Turtlebot')
 
     # while True:
