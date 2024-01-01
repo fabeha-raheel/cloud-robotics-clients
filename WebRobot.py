@@ -3,6 +3,7 @@
 import rospy
 import tf
 import websocket # pip install websocket-client
+import time
 
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu, NavSatFix
@@ -34,6 +35,7 @@ class WebRobot():
         
         self._init_subscribers()
         self._init_publishers()
+
         print(self.data.header.robot_name + " of type " + self.data.header.robot_type + " successfully initialized. ")
 
     def _init_subscribers(self):
@@ -120,6 +122,7 @@ if __name__ == '__main__':
 
     tb3 = WebRobot()
     tb3.init_robot(robot_name='tb3', robot_type='Turtlebot')
+    print(tb3.data.to_dict())
 
     # while True:
     #     try:
@@ -127,3 +130,18 @@ if __name__ == '__main__':
     #         time.sleep(1)
     #     except KeyboardInterrupt:
     #         sys.exit(1)
+
+
+'''
+Next Steps:
+
+1. dictionary WebRobot Data -> send on websockets.
+2. modify consumers.py file to accept this data - WebRobotConsumer
+3. modify js file to use this data
+
+
+4. Send video data
+5. Test with Iris drone
+
+
+'''
