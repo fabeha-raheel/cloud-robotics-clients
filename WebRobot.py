@@ -139,7 +139,7 @@ class WebRobot():
     def global_position_cb(self, mssg):
         self.data.global_position.latitude = mssg.latitude
         self.data.global_position.longitude = mssg.longitude
-        self.data.global_position.altitude = mssg.altitude
+        self.data.global_position.altitude = round(mssg.altitude, 2)
 
     def local_position_cb(self, mssg):
         self.data.local_position.x = round(mssg.pose.position.x, 3)

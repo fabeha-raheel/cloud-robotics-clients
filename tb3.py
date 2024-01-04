@@ -41,7 +41,7 @@ async def main():
             while not rospy.is_shutdown():
                 data_to_send = tb3_robot.robot_data()
                 print("Sending data...")
-                print(data_to_send)
+                # print(data_to_send)
 
                 try:
                     await websocket.send(json.dumps(data_to_send))

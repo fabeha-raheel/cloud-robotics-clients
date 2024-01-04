@@ -28,7 +28,7 @@ async def main():
     except:
         print("Please select a valid robot type. Choose from: ", robot.get_available_robot_types())
         sys.exit(1)
-    robot.init_robot(video=False)
+    robot.init_robot(video=True)
 
     while not rospy.is_shutdown():
         try:
@@ -41,7 +41,7 @@ async def main():
                 while not rospy.is_shutdown():
                     data_to_send = robot.robot_data()
                     print("Sending data...")
-                    print(data_to_send)
+                    # print(data_to_send)
 
                     try:
                         await websocket.send(json.dumps(data_to_send))
