@@ -47,9 +47,11 @@ async def main():
                     await websocket.send(json.dumps(data_to_send))
                 except ConnectionClosedError as e:
                     print("Caught the connection closed error.")
+                    break
                     # print(e)
                 except Exception as e:
                     print("Websocket Exception.")
+                    break
                     # print("Error: ", e)
                 
                 await asyncio.sleep(0.1)
