@@ -95,9 +95,6 @@ class WebRobot():
     # Subscriber Callbacks
 
     def odomcb(self, mssg):
-        # self.data.local_position.x = mssg.pose.pose.position.x
-        # self.data.local_position.y = mssg.pose.pose.position.y
-        # self.data.local_position.z = mssg.pose.pose.position.z
 
         self.data.local_position.x = round(mssg.pose.pose.position.x, 3)
         self.data.local_position.y = round(mssg.pose.pose.position.y, 3)
@@ -156,23 +153,16 @@ if __name__ == '__main__':
     tb3.init_robot(robot_name='tb3', robot_type='Turtlebot')
     print(tb3.data.to_dict())
 
-    # while True:
-    #     try:
-    #         print(tb3.data.to_dict())
-    #         time.sleep(1)
-    #     except KeyboardInterrupt:
-    #         sys.exit(1)
-
 
 '''
 Next Steps:
 
-1. dictionary WebRobot Data -> send on websockets.
-2. modify consumers.py file to accept this data - WebRobotConsumer
+1. Done dictionary WebRobot Data -> send on websockets.
+2. Done modify consumers.py file to accept this data - WebRobotConsumer
 3. modify js file to use this data
 
 
-4. Send video data
+4. Done Send video data
 5. Test with Iris drone
 
 
