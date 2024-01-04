@@ -34,14 +34,17 @@ class WebRobot():
         else:
             raise Exception("Not a valid robot type. Choose from the following supported types: ", RobotTypes)
 
-    def init_robot(self):
+    def init_robot(self, video=True):
         
         rospy.init_node(self.data.header.robot_name + '_node', anonymous=True)
         
         self._init_subscribers()
         self._init_publishers()
-        success = self._init_video()
-
+        if video:
+            success = self._init_video()
+        else:
+            success = True
+        
         if success:
             print(self.data.header.robot_name + " of type " + self.data.header.robot_type + " successfully initialized. ")
         else:
