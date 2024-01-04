@@ -41,19 +41,6 @@ class LinearVelocity:
         self.vy = vy
         self.vz = vz
 
-# class Odom_Data:
-#     def __init__(self) -> None:
-#         self.local_position = LocalPosition()
-#         self.orientation_euler = EulerOrientation()
-#         self.linear_velocity = LinearVelocity()
-#         self.angular_velocity = AngularVelocity()
-
-# class IMU_Data:
-#     def __init__(self):
-#         self.orientation_euler = EulerOrientation()
-#         self.angular_velocity = AngularVelocity()
-#         self.linear_acceleration = LinearAcceleration()
-
 class WebRobot_Data:
     def __init__(self):
         self.header = Header()
