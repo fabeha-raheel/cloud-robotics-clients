@@ -37,6 +37,7 @@ async def main():
         while True:
             data_to_send = tb3_robot.robot_data()
             print("Sending data...")
+            print(data_to_send)
 
             # # Send data to the server
             try:

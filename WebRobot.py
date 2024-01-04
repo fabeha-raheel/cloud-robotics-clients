@@ -67,29 +67,33 @@ class WebRobot():
     # Subscriber Callbacks
 
     def odomcb(self, mssg):
-        self.data.local_position.x = mssg.pose.pose.position.x
-        self.data.local_position.y = mssg.pose.pose.position.y
-        self.data.local_position.z = mssg.pose.pose.position.z
+        # self.data.local_position.x = mssg.pose.pose.position.x
+        # self.data.local_position.y = mssg.pose.pose.position.y
+        # self.data.local_position.z = mssg.pose.pose.position.z
+
+        self.data.local_position.x = round(mssg.pose.pose.position.x, 3)
+        self.data.local_position.y = round(mssg.pose.pose.position.y, 3)
+        self.data.local_position.z = round(mssg.pose.pose.position.z, 3)
 
         quaternion = (mssg.pose.pose.orientation.x, mssg.pose.pose.orientation.y, mssg.pose.pose.orientation.z, mssg.pose.pose.orientation.w)
         euler = tf.transformations.euler_from_quaternion(quaternion)
 
-        self.data.euler_orientation.roll = euler[0]
-        self.data.euler_orientation.pitch = euler[1]
-        self.data.euler_orientation.yaw = euler[2]
+        self.data.euler_orientation.roll = round(euler[0], 3)
+        self.data.euler_orientation.pitch = round(euler[1], 3)
+        self.data.euler_orientation.yaw = round(euler[2], 3)
         
-        self.data.linear_velocity.vx = mssg.twist.twist.linear.x
-        self.data.linear_velocity.vy = mssg.twist.twist.linear.y
-        self.data.linear_velocity.vz = mssg.twist.twist.linear.z
+        self.data.linear_velocity.vx = round(mssg.twist.twist.linear.x, 3)
+        self.data.linear_velocity.vy = round(mssg.twist.twist.linear.y, 3)
+        self.data.linear_velocity.vz = round(mssg.twist.twist.linear.z, 3)
 
-        self.data.angular_velocity.wx = mssg.twist.twist.angular.x
-        self.data.angular_velocity.wy = mssg.twist.twist.angular.y
-        self.data.angular_velocity.wz = mssg.twist.twist.angular.z
+        self.data.angular_velocity.wx = round(mssg.twist.twist.angular.x, 3)
+        self.data.angular_velocity.wy = round(mssg.twist.twist.angular.y, 3)
+        self.data.angular_velocity.wz = round(mssg.twist.twist.angular.z, 3)
         
     def imucb(self, mssg):
-        self.data.linear_acceleration.ax = mssg.linear_acceleration.x
-        self.data.linear_acceleration.ay = mssg.linear_acceleration.y
-        self.data.linear_acceleration.az = mssg.linear_acceleration.z
+        self.data.linear_acceleration.ax = round(mssg.linear_acceleration.x, 3)
+        self.data.linear_acceleration.ay = round(mssg.linear_acceleration.y, 3)
+        self.data.linear_acceleration.az = round(mssg.linear_acceleration.z, 3)
 
     def global_position_cb(self, mssg):
         self.data.global_position.latitude = mssg.latitude
@@ -97,25 +101,25 @@ class WebRobot():
         self.data.global_position.altitude = mssg.altitude
 
     def local_position_cb(self, mssg):
-        self.data.local_position.x = mssg.pose.position.x
-        self.data.local_position.y = mssg.pose.position.y
-        self.data.local_position.z = mssg.pose.position.z
+        self.data.local_position.x = round(mssg.pose.position.x, 3)
+        self.data.local_position.y = round(mssg.pose.position.y, 3)
+        self.data.local_position.z = round(mssg.pose.position.z, 3)
 
         quaternion = (mssg.pose.orientation.x, mssg.pose.orientation.y, mssg.pose.orientation.z, mssg.pose.orientation.w)
         euler = tf.transformations.euler_from_quaternion(quaternion)
 
-        self.data.euler_orientation.roll = euler[0]
-        self.data.euler_orientation.pitch = euler[1]
-        self.data.euler_orientation.yaw = euler[2]
+        self.data.euler_orientation.roll = round(euler[0], 3)
+        self.data.euler_orientation.pitch = round(euler[1], 3)
+        self.data.euler_orientation.yaw = round(euler[2], 3)
 
     def local_velocity_cb(self, mssg):
-        self.data.linear_velocity.vx = mssg.twist.linear.x
-        self.data.linear_velocity.vy = mssg.twist.linear.y
-        self.data.linear_velocity.vz = mssg.twist.linear.z
+        self.data.linear_velocity.vx = round(mssg.twist.linear.x, 3)
+        self.data.linear_velocity.vy = round(mssg.twist.linear.y, 3)
+        self.data.linear_velocity.vz = round(mssg.twist.linear.z, 3)
 
-        self.data.angular_velocity.wx = mssg.twist.angular.x
-        self.data.angular_velocity.wy = mssg.twist.angular.y
-        self.data.angular_velocity.wz = mssg.twist.angular.z
+        self.data.angular_velocity.wx = round(mssg.twist.angular.x, 3)
+        self.data.angular_velocity.wy = round(mssg.twist.angular.y, 3)
+        self.data.angular_velocity.wz = round(mssg.twist.angular.z, 3)
 
 
 if __name__ == '__main__':
