@@ -61,9 +61,8 @@ class WebRobot():
             
         elif self.data.header.robot_type == 'ArduCopter' or self.data.header.robot_type == 'ArduRover':
             rospy.Subscriber('/mavros/global_position/global', NavSatFix, self.global_position_cb)
-            rospy.Subscriber('/mavros/local_position/pose', PoseStamped, self.local_position_cb)
+            rospy.Subscriber('/mavros/local_position/odom', Odometry, self.odomcb)
             rospy.Subscriber('/mavros/imu/data', Imu, self.imucb)
-            rospy.Subscriber('/mavros/local_position/velocity', TwistStamped, self.local_velocity_cb)
 
     def _init_publishers(self):
 
@@ -140,27 +139,6 @@ class WebRobot():
         self.data.global_position.latitude = mssg.latitude
         self.data.global_position.longitude = mssg.longitude
         self.data.global_position.altitude = round(mssg.altitude, 2)
-
-    def local_position_cb(self, mssg):
-        self.data.local_position.x = round(mssg.pose.position.x, 3)
-        self.data.local_position.y = round(mssg.pose.position.y, 3)
-        self.data.local_position.z = round(mssg.pose.position.z, 3)
-
-        quaternion = (mssg.pose.orientation.x, mssg.pose.orientation.y, mssg.pose.orientation.z, mssg.pose.orientation.w)
-        euler = tf.transformations.euler_from_quaternion(quaternion)
-
-        self.data.euler_orientation.roll = round(euler[0], 3)
-        self.data.euler_orientation.pitch = round(euler[1], 3)
-        self.data.euler_orientation.yaw = round(euler[2], 3)
-
-    def local_velocity_cb(self, mssg):
-        self.data.linear_velocity.vx = round(mssg.twist.linear.x, 3)
-        self.data.linear_velocity.vy = round(mssg.twist.linear.y, 3)
-        self.data.linear_velocity.vz = round(mssg.twist.linear.z, 3)
-
-        self.data.angular_velocity.wx = round(mssg.twist.angular.x, 3)
-        self.data.angular_velocity.wy = round(mssg.twist.angular.y, 3)
-        self.data.angular_velocity.wz = round(mssg.twist.angular.z, 3)
 
 
 if __name__ == '__main__':
