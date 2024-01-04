@@ -4,6 +4,9 @@ import rospy
 import tf
 import websocket # pip install websocket-client
 import time
+import cv2
+import threading
+import base64
 
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu, NavSatFix
@@ -54,6 +57,31 @@ class WebRobot():
 
         if self.data.header.robot_type == 'Turtlebot':
             self.cmdvel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+
+    def _init_video(self):
+        # Open the webcam and capture video frames
+        self.cap = cv2.VideoCapture(0)
+
+        if not self.cap.isOpened():
+            print("Error: Unable to access the webcam.")
+            return
+        
+        # Get the width and height of the video frame
+        self.data.video.width = int(self.cap.get(3))
+        self.data.video.height = int(self.cap.get(4))
+
+    def _start_video_thread(self):
+        self.video_thread = threading.Thread(target=self._video_thread_target, daemon=True)
+        self.video_thread.start()
+
+    def _video_thread_target(self):
+        while True:
+            # Read a frame from the webcam
+            ret, frame = self.cap.read()
+
+            # Convert the frame to JPEG format
+            _, buffer = cv2.imencode('.jpg', frame)
+            self.data.video.frame = base64.b64encode(buffer).decode('utf-8')
 
     def init_socket_connection(self):
         pass
