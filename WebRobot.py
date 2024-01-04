@@ -20,6 +20,8 @@ class WebRobot():
         
         # self.ws_uri = ws_uri
         self.data = WebRobot_Data()
+        self.kill = False
+        self.camera = 0
 
     def set_robot_name(self, robot_name):
         self.data.header.robot_name = robot_name
@@ -38,8 +40,15 @@ class WebRobot():
         
         self._init_subscribers()
         self._init_publishers()
+        success = self._init_video()
 
-        print(self.data.header.robot_name + " of type " + self.data.header.robot_type + " successfully initialized. ")
+        if success:
+            print(self.data.header.robot_name + " of type " + self.data.header.robot_type + " successfully initialized. ")
+        else:
+            print("Cannot start video.")
+
+    def end_threads(self):
+        self.kill = True
 
     def _init_subscribers(self):
 
@@ -60,22 +69,26 @@ class WebRobot():
 
     def _init_video(self):
         # Open the webcam and capture video frames
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(self.camera)
 
         if not self.cap.isOpened():
             print("Error: Unable to access the webcam.")
-            return
+            return False
         
         # Get the width and height of the video frame
         self.data.video.width = int(self.cap.get(3))
         self.data.video.height = int(self.cap.get(4))
+
+        self._start_video_thread()
+        
+        return True
 
     def _start_video_thread(self):
         self.video_thread = threading.Thread(target=self._video_thread_target, daemon=True)
         self.video_thread.start()
 
     def _video_thread_target(self):
-        while True:
+        while not self.kill:
             # Read a frame from the webcam
             ret, frame = self.cap.read()
 
