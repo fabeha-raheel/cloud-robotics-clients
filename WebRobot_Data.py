@@ -60,6 +60,7 @@ class WebRobot_Data:
 
 class WebRobot_ControlCommands():
     def __init__(self) -> None:
+        self.header = Header()
         self.linear_velocity = 0
         self.angular_velocity = 0
         self.forward = False
