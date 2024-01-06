@@ -47,6 +47,18 @@ class Video:
         self.width = width
         self.height = height
 
+class ControlVelocity():
+    def __init__(self, linear=0, angular=0):
+        self.linear_velocity = linear
+        self.angular_velocity = angular
+
+class ControlDirection():
+    def __init__(self, forward=False, backward=False, right=False, left=False):
+        self.forward = forward
+        self.backward = backward
+        self.right = right
+        self.left = left
+
 class WebRobot_Data:
     def __init__(self):
         self.header = Header()
@@ -58,15 +70,17 @@ class WebRobot_Data:
         self.linear_acceleration = LinearAcceleration()
         self.video = Video()
 
+    def to_dict(self):
+        return {
+            key: value.__dict__
+            for key, value in self.__dict__.items()
+        }
+
 class WebRobot_ControlCommands():
     def __init__(self) -> None:
         self.header = Header()
-        self.linear_velocity = 0
-        self.angular_velocity = 0
-        self.forward = False
-        self.backward = False
-        self.right = False
-        self.left = False
+        self.velocity = ControlVelocity()
+        self.direction = ControlDirection()
 
 
     def to_dict(self):
@@ -76,6 +90,10 @@ class WebRobot_ControlCommands():
         }
 
 # Example usage
-data = WebRobot_Data()
-data_dict = data.to_dict()
+# data = WebRobot_Data()
+# data_dict = data.to_dict()
+# print(data_dict)
+
+commands = WebRobot_ControlCommands()
+data_dict = commands.to_dict()
 print(data_dict)
