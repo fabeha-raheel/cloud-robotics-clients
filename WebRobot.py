@@ -107,6 +107,10 @@ class WebRobot():
     def get_available_robot_types(self):
         return RobotTypes
     
+    def move_robot(self):
+        move_cmd = Twist()
+        
+    
     # Subscriber Callbacks
 
     def odomcb(self, mssg):

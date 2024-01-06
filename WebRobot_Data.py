@@ -1,4 +1,4 @@
-RobotTypes = ['ArduCopter', 'ArduRover', 'Turtlebot']
+RobotTypes = ['UAV-Copter', 'UGV-Rover', 'Turtlebot', 'Mobile-Robot']
 
 class Header:
     def __init__(self) -> None:
@@ -57,6 +57,15 @@ class WebRobot_Data:
         self.angular_velocity = AngularVelocity()
         self.linear_acceleration = LinearAcceleration()
         self.video = Video()
+
+class WebRobot_ControlCommands():
+    def __init__(self) -> None:
+        self.linear_velocity = 0
+        self.angular_velocity = 0
+        self.forward = False
+        self.backward = False
+        self.right = False
+        self.left = False
 
 
     def to_dict(self):
