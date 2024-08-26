@@ -12,11 +12,12 @@ import sys
 from WebRobot import WebRobot
 # from WebRobot_Data import *
 
-ROBOT_NAME = 'Turtlebot3'
+ROBOT_NAME = 'Turtle1'
 ROBOT_TYPE = 'Turtlebot'
-ROBOT_SLUG = 'tb3'
+ROBOT_SLUG = 'turtle'
 
-WS_URI = "ws://localhost:8000/ws/" + ROBOT_SLUG + "/"
+# WS_URI = "ws://localhost:8000/ws/" + ROBOT_SLUG + "/"
+WS_URI = "ws://192.168.0.112:8000/ws/" + ROBOT_SLUG + "/"
 
 KILL_EVENT = asyncio.Event()
 OK_EVENT = asyncio.Event()

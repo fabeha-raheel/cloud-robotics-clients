@@ -14,25 +14,43 @@ from geometry_msgs.msg import Twist, PoseStamped, TwistStamped
 
 from WebRobot_Data import *
 
-class WebRobot():
+class WebRobot_ROS():
 
-    def __init__(self) -> None:
+    def __init__(self, name='no-name', type=None, owner_id=-1, access_key=None) -> None:
         
-        # self.ws_uri = ws_uri
+        self.name = name
+        self.type = type
+        self.owner_id = owner_id
+        self.access_key = access_key
+        
         self.data = WebRobot_Data()
         self.kill = False
         self.camera = 0
 
-    def set_robot_name(self, robot_name):
-        self.data.header.robot_name = robot_name
+        self.ws_connected = False
+        self.ws_timer = 0
+        self.ws_uri = None
 
-    def set_robot_type(self, robot_type):
-        
-        if robot_type in RobotTypes:
-            self.data.header.robot_type = robot_type
+    def connect(self, ws_uri=None):
+        if ws_uri is not None:
+            self.ws_thread = threading.Thread(target=self._ws_thread_target, daemon=True)
+            self.ws_thread.start()
 
-        else:
-            raise Exception("Not a valid robot type. Choose from the following supported types: ", RobotTypes)
+    def set_subscribers(self, odom_topic=None, imu_topic=None, global_position_topic=None, camera_topic=None):
+        # odom_subscriber should publish data of the type nav_msgs/Odometry
+        # imu_subscriber should publish data of the type sensor_msgs/Imu
+        # global_position_subscriber should publish data of the type sensor_msgs/NavSatFix
+
+        self.odom_topic = odom_topic
+        self.imu_topic = imu_topic
+        self.global_position_topic = global_position_topic
+        self.camera_topic = camera_topic
+
+    def set_publishers(self, control_type=None, control_topic=None):
+        # control_type can be either 'cmd_vel' or 'rc'
+
+        self.control_type = control_type
+        self.control_topic = control_topic
 
     def init_robot(self, video=True):
         
@@ -50,68 +68,67 @@ class WebRobot():
         else:
             print("Cannot start video.")
 
-    def end_threads(self):
-        self.kill = True
-
     def _init_subscribers(self):
+        if self.odom_topic is not None:
+            rospy.Subscriber(self.odom_topic, Odometry, self.odomcb)
+        else:
+            print("No odom topic specified.")
+        
+        if self.imu_topic is not None:
+            rospy.Subscriber(self.imu_topic, Imu, self.imucb)
+        else:
+            print("No imu topic specified.")
 
-        if self.data.header.robot_type == 'Turtlebot':
-            rospy.Subscriber('/odom', Odometry, self.odomcb)
-            rospy.Subscriber('/imu', Imu, self.imucb)
-            
-        elif self.data.header.robot_type == 'ArduCopter' or self.data.header.robot_type == 'ArduRover':
-            rospy.Subscriber('/mavros/global_position/global', NavSatFix, self.global_position_cb)
-            rospy.Subscriber('/mavros/local_position/odom', Odometry, self.odomcb)
-            rospy.Subscriber('/mavros/imu/data', Imu, self.imucb)
+        if self.global_position_topic is not None:
+            rospy.Subscriber(self.global_position_topic, NavSatFix, self.global_position_cb)
+        else:
+            print("No global position topic specified.")
 
     def _init_publishers(self):
-
-        if self.data.header.robot_type == 'Turtlebot':
-            self.cmdvel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
-
-    def _init_video(self):
-        # Open the webcam and capture video frames
-        self.cap = cv2.VideoCapture(self.camera)
-
-        if not self.cap.isOpened():
-            print("Error: Unable to access the webcam.")
-            return False
         
-        # Get the width and height of the video frame
-        self.data.video.width = int(self.cap.get(3))
-        self.data.video.height = int(self.cap.get(4))
+        if self.control_type == 'cmd_vel' and self.control_topic is not None:
+            self.cmdvel_pub = rospy.Publisher(self.control_topic, Twist, queue_size=10)
+        else:
+            print("No control topic specified.")
 
-        self._start_video_thread()
-        
-        return True
+    def _ws_thread_target(self):
+        if not self.ws_connected:
+            self.websocket = websocket.WebSocketApp(self.ws_uri,
+                                on_message = self.ws_on_message,
+                                on_error = self.ws_on_error,
+                                on_close = self.ws_on_close)
+            
+            self.websocket.on_open = self.ws_on_open
+            
+            self.websocket.run_forever(ping_interval=13, ping_timeout=10)
 
-    def _start_video_thread(self):
-        self.video_thread = threading.Thread(target=self._video_thread_target, daemon=True)
-        self.video_thread.start()
+    def reconnect(self):
+        print("Attempting to reconnect.............")
+        self.ws_thread = threading.Thread(target=self._ws_thread_target, daemon=True)
+        self.ws_thread.start()
 
-    def _video_thread_target(self):
-        while not self.kill:
-            # Read a frame from the webcam
-            ret, frame = self.cap.read()
+    def ws_on_close(self):   
+        self.ws_connected = False
+        print("Websocket Connection Closed.");
+        self.ws_timer += 1
+        print("Try to reconnect after", self.ws_timer)
+        time.sleep(self.ws_timer)
+        self.reconnect()
 
-            # Convert the frame to JPEG format
-            _, buffer = cv2.imencode('.jpg', frame)
-            self.data.video.frame = base64.b64encode(buffer).decode('utf-8')
+    def ws_on_open(self):
+        self.ws_timer = 0
+        print("Websocket connection established.")
+        time.sleep(1) # to make sure no thread is sending now
+        self.ws_connected = True
 
-    def init_socket_connection(self):
-        pass
+    def ws_on_message(self, message):
+        self.message_handler(message)
 
-    def robot_data(self):
-        return self.data.to_dict()
-    
-    def get_available_robot_types(self):
-        return RobotTypes
-    
-    def move_robot(self):
-        move_cmd = Twist()
-        
-    
-    # Subscriber Callbacks
+    def message_handler(self, message):
+        print(message)
+
+    def ws_on_error(self, error):   
+        print("Websocket Error: ", error)
 
     def odomcb(self, mssg):
 
@@ -144,24 +161,46 @@ class WebRobot():
         self.data.global_position.longitude = mssg.longitude
         self.data.global_position.altitude = round(mssg.altitude, 2)
 
+    def _init_video(self):
+        # Open the webcam and capture video frames
+        self.cap = cv2.VideoCapture(self.camera)
+
+        if not self.cap.isOpened():
+            print("Error: Unable to access the webcam.")
+            return False
+        
+        # Get the width and height of the video frame
+        self.data.video.width = int(self.cap.get(3))
+        self.data.video.height = int(self.cap.get(4))
+
+        self._start_video_thread()
+        
+        return True
+
+    def _start_video_thread(self):
+        self.video_thread = threading.Thread(target=self._video_thread_target, daemon=True)
+        self.video_thread.start()
+
+    def _video_thread_target(self):
+        while not self.kill:
+            # Read a frame from the webcam
+            ret, frame = self.cap.read()
+
+            # Convert the frame to JPEG format
+            _, buffer = cv2.imencode('.jpg', frame)
+            self.data.video.frame = base64.b64encode(buffer).decode('utf-8')
+
+    def robot_data(self):
+        return self.data.to_dict()
+    
+    def get_available_robot_types(self):
+        return RobotTypes
+    
+    def end_threads(self):
+        self.kill = True
+    
 
 if __name__ == '__main__':
 
-    tb3 = WebRobot()
-    tb3.init_robot(robot_name='tb3', robot_type='Turtlebot')
+    tb3 = WebRobot_ROS()
     print(tb3.data.to_dict())
-
-
-'''
-Next Steps:
-
-1. Done dictionary WebRobot Data -> send on websockets.
-2. Done modify consumers.py file to accept this data - WebRobotConsumer
-3. modify js file to use this data
-
-
-4. Done Send video data
-5. Test with Iris drone
-
-
-'''

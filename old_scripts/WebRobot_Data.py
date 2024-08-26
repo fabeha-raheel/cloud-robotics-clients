@@ -12,8 +12,7 @@ class LocalPosition:
         self.z = z
 
 class GlobalPosition:
-    def __init__(self, gps_fix=0, latitude=0, longitude=0, altitude=0):
-        self.gps_fix = gps_fix
+    def __init__(self, latitude=0, longitude=0, altitude=0):
         self.latitude = latitude
         self.longitude = longitude
         self.altitude = altitude
@@ -95,7 +94,6 @@ class WebRobot_ControlCommands():
 # data_dict = data.to_dict()
 # print(data_dict)
 
-if __name__ == '__main__':
-    commands = WebRobot_ControlCommands()
-    data_dict = commands.to_dict()
-    print(data_dict)
+commands = WebRobot_ControlCommands()
+data_dict = commands.to_dict()
+print(data_dict)
