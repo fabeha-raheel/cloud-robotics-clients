@@ -7,6 +7,7 @@ import time
 import cv2
 import threading
 import base64
+import json
 
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu, NavSatFix
@@ -52,7 +53,7 @@ class WebRobot_ROS():
         self.control_type = control_type
         self.control_topic = control_topic
 
-    def init_robot(self, video=True):
+    def init_robot(self, video=False):
         
         rospy.init_node(self.data.header.robot_name + '_node', anonymous=True)
         
@@ -121,6 +122,9 @@ class WebRobot_ROS():
         time.sleep(1) # to make sure no thread is sending now
         self.ws_connected = True
 
+        self.data_transmission_thread = threading.Thread(target=self._data_transmission_target, daemon=True)
+        self.data_transmission_thread.start()
+
     def ws_on_message(self, message):
         self.message_handler(message)
 
@@ -129,6 +133,13 @@ class WebRobot_ROS():
 
     def ws_on_error(self, error):   
         print("Websocket Error: ", error)
+
+    def _data_transmission_target(self):
+        while self.ws_connected:
+            self.websocket.send(json.dumps(self.robot_data))
+            time.sleep(0.1)
+
+        print("Data transmission thread stopped")
 
     def odomcb(self, mssg):
 
